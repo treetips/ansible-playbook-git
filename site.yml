@@ -1,0 +1,7 @@
+---
+- hosts: development
+  sudo: no
+  vars_files:
+    - group_vars/common.yml
+  roles:
+    - git

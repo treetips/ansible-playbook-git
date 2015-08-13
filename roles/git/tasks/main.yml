@@ -1,0 +1,58 @@
+- name: uninstall default installed git
+  yum: name=git state=absent
+  sudo: yes
+
+- name: system required dependencies
+  yum: name={{ item }} state=present
+  with_items:
+    - unzip
+  sudo: yes
+
+- name: install git dependencies
+  yum: name={{ item }} state=present
+  with_items:
+    - gcc
+    - gcc-c++
+    - autoconf
+    - automake
+    - kernel-devel
+    - ncurses-devel
+    - gettext
+    - zlib-devel
+    - curl-devel
+    - perl-ExtUtils-MakeMaker
+    - openssl-devel
+  sudo: yes
+
+- name: download git
+  get_url: url={{ git_src_archive_dl_url }} dest=/usr/local/src/git-master.zip
+  sudo: yes
+
+- name: register git is downloaded
+  stat: path=/usr/local/src/git-master
+  register: git_downloaded
+
+- name: unarchive git
+  unarchive: src=/usr/local/src/git-master.zip dest=/usr/local/src copy=no
+  when: git_downloaded.stat.exists == false
+  sudo: yes
+
+- name: make configure
+  shell: make configure chdir=/usr/local/src/git-master
+  when: git_downloaded.stat.exists == false
+  sudo: yes
+
+- name: make configure
+  shell: ./configure --prefix=/usr/local chdir=/usr/local/src/git-master
+  when: git_downloaded.stat.exists == false
+  sudo: yes
+
+- name: make all
+  shell: make all chdir=/usr/local/src/git-master
+  when: git_downloaded.stat.exists == false
+  sudo: yes
+
+- name: make install
+  shell: make install chdir=/usr/local/src/git-master
+  when: git_downloaded.stat.exists == false
+  sudo: yes
